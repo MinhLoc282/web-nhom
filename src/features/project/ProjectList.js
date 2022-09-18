@@ -2,8 +2,7 @@ import React, {useRef, useEffect, useState} from 'react'
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import { useSelector, useDispatch } from 'react-redux';
-import {add, remove } from './projectSlice'
-import {selectProject} from './projectSlice'
+import {selectProject, addLabs, getLabs, removeLab} from './projectSlice'
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -28,17 +27,18 @@ export const ProjectList = () => {
   const labsRef = useRef('')
   const urlsRef = useRef('')
   const [ids, setIDs] = useState([])
-  const rows = useSelector(selectProject)
   const dispatch = useDispatch()
+  const rows = useSelector(selectProject)
 
   useEffect(() => {
     labsRef.current.focus()
-  }, [])
-
+    dispatch(getLabs())
+  }, [dispatch])
+  
   const handleAddClick = () => {
     if (labsRef && urlsRef){
       dispatch(
-        add({
+        addLabs({
           id:nanoid().toString(),
           title:labsRef.current.value,
           url:urlsRef.current.value
@@ -48,7 +48,7 @@ export const ProjectList = () => {
   }
   const handleRemoveClick = () => {
     dispatch(
-      remove({
+      removeLab({
         id: ids
       })
     )
