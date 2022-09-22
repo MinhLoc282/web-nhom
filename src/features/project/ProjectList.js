@@ -1,76 +1,43 @@
-import React, {useRef, useEffect, useState} from 'react'
+import React, {useRef, useEffect} from 'react'
 import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
 import { useSelector, useDispatch } from 'react-redux';
-import {selectProject, addLabs, getLabs, removeLab} from './projectSlice'
+import {selectProject, addLabs, getLabs} from './projectSlice'
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { nanoid } from '@reduxjs/toolkit'
-
-const columns = [
-    {
-        field: 'title',
-        headerName: 'Title',
-        width: 300,
-        editable: true,
-    },
-    {
-        field: 'url',
-        headerName: 'Url',
-        width: 650,
-        editable: true,
-    },
-];
+import { Project } from './Project';
+import Grid from '@mui/material/Grid';
 
 export const ProjectList = () => {
   const labsRef = useRef('')
   const urlsRef = useRef('')
-  const [ids, setIDs] = useState([])
+  const imgsRef = useRef('')
   const dispatch = useDispatch()
-  const rows = useSelector(selectProject)
-
+  const projects = useSelector(selectProject)
   useEffect(() => {
     labsRef.current.focus()
     dispatch(getLabs())
   }, [dispatch])
-  
   const handleAddClick = () => {
     if (labsRef && urlsRef){
       dispatch(
         addLabs({
           id:nanoid().toString(),
           title:labsRef.current.value,
-          url:urlsRef.current.value
+          url:urlsRef.current.value,
+          img:imgsRef.current.value
         })
       )
     }
   }
-  const handleRemoveClick = () => {
-    dispatch(
-      removeLab({
-        id: ids
-      })
-    )
-  }
-  const getId = (ids) => {
-    const selectedId = ids
-    setIDs(selectedId)
-  }
   return (
     <>
-      <Box sx={{height:400, width:'100%'}}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          checkboxSelection
-          disableSelectionOnClick
-          onSelectionModelChange={getId}
-        />
-      </Box>
-      <Stack spacing={2} direction="row" justifyContent="right" alignItems="center" style={{width:'100%'}}>
+      <Stack spacing={2} direction="row" justifyContent="right" alignItems="center" style={{width:'100%'}}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-around',
+        }}>
         <Box
         component="form"
         sx={{
@@ -93,10 +60,25 @@ export const ProjectList = () => {
             style={{width:500}}
             inputRef={urlsRef}
           />
+          <TextField
+            required
+            id="outlined-required"
+            label="Image"
+            style={{width:500}}
+            inputRef={imgsRef}
+          />
         </Box>
         <Button variant="outlined" onClick={handleAddClick}>Thêm</Button>
-        <Button variant="outlined" onClick={handleRemoveClick}>Xóa</Button>
       </Stack>
+      <Grid container spacing={2} style={{padding: 10}}>
+          {projects.map(project => {
+            return (
+              <Grid item xs={3} key={project.id}>
+                <Project {...project}/>
+              </Grid>
+            )
+          })}
+      </Grid>
     </>
   )
 }

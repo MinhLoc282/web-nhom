@@ -37,31 +37,13 @@ export const addLabs = createAsyncThunk(
             body: JSON.stringify(data),
         })
         const jsonData = await response.json()
-        if (response.status === 200 || response.status >= 300) {
+        if (response.status !== 201 || response.status >= 300) {
             return rejectWithValue(jsonData)
         }
         return jsonData
     }
 )
 
-export const removeLab = createAsyncThunk(
-    'project/removeLab',
-    async (data, { rejectWithValue }) => {
-        const response = await fetch(`https://632709c6ba4a9c47532f7eed.mockapi.io/lab/${data.id}`,
-        {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        const jsonData = await response.json()
-        if (response.status !== 200 || response.status >= 300) {
-            return rejectWithValue(jsonData)
-        }
-        return jsonData
-    }
-)
 
 export const projectSlice = createSlice({
     name: 'project',
@@ -88,17 +70,6 @@ export const projectSlice = createSlice({
             state.labs = action.payload
         })
         builder.addCase(getLabs.rejected, (state, action) => {
-            state.isLoading = false
-            state.errorMessage = action.payload.message
-        })
-        builder.addCase(removeLab.pending, (state) => {
-            state.isLoading = true
-        })
-        builder.addCase(removeLab.fulfilled, (state,action) => {
-            state.isLoading = false;
-            state.labs.filter((lab) => !action.payload.id.includes(lab.id))
-        })
-        builder.addCase(removeLab.rejected, (state, action) => {
             state.isLoading = false
             state.errorMessage = action.payload.message
         })
